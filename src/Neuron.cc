@@ -1,7 +1,7 @@
 #include "Neuron.h"
 
 // c'tor
-Neuron::Neuron(int numberInputs, const std::function<double()> &activation)
+Neuron::Neuron(int numberInputs, const std::function<Value(double)> &activation)
     : mActivationFunction(activation) {
   // Create a uniform distribution on range [-1, 1] to initialize the neuron
   // weights.
@@ -10,10 +10,10 @@ Neuron::Neuron(int numberInputs, const std::function<double()> &activation)
 
   // Initialize a random set of neuron weights
   mWeights.resize(numberInputs);
-  for (auto &val : mWeights) {
-    val = distribution(generator);
+  for (size_t i = 0; i < mWeights.size(); ++i) {
+    mWeights[i] = Value(distribution(generator));
   }
 
   // Initialize the bias to 0
-  mBias = 0.0;
+  mBias = Value(0.0);
 }

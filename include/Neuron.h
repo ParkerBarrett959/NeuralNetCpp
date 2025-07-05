@@ -4,6 +4,8 @@
 #include <random>
 #include <vector>
 
+#include "Value.h"
+
 /**
  * Neuron
  *
@@ -21,15 +23,15 @@ public:
    * @param numberInputs The integer number of inputs the neural net receives.
    * @param activation The activation function
    */
-  Neuron(int numberInputs, const std::function<double()> &activation);
+  Neuron(int numberInputs, const std::function<Value(double)> &activation);
 
 private:
   // Vector of neuron weights
-  std::vector<double> mWeights;
+  std::vector<Value> mWeights;
 
   // Neuron bias
-  double mBias;
+  Value mBias;
 
   // Neuron activation function
-  std::function<double()> mActivationFunction;
+  std::function<Value(double)> mActivationFunction;
 };
