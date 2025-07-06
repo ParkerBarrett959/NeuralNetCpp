@@ -15,3 +15,6 @@ file(GLOB SOURCES "${PROJECT_SOURCE_DIR}/src/*.cc")
 
 # Build the neural network static library
 add_library(NeuralNetwork STATIC ${SOURCES})
+
+# Build the example executable
+add_executable(main ${SOURCES})
