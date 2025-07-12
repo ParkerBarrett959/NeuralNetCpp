@@ -1,90 +1,153 @@
-#include <algorithm>
-#include <cmath>
 #include <iostream>
 #include <memory>
-#include <random>
 #include <vector>
+#include <random>
+#include <algorithm>
+#include <cmath>
 
 #include "../include/MultiLayerPerceptron.h"
-#include "mNistLoader.h"
+#include "mnist_loader.h"
 
-/**
- * Main MNIST Trainig Example
- */
+constexpr int inputSize = 28 * 28;
+constexpr int hiddenSize = 64;
+constexpr int outputSize = 10;
+constexpr double learningRate = 0.01;
+constexpr int epochs = 5;
+constexpr int batchSize = 32;
+
+std::pair<double, double> evaluate(
+    const MultiLayerPerceptron& mlp,
+    const std::vector<std::vector<double>>& images,
+    const std::vector<int>& labels)
+{
+  int correct = 0;
+  double totalLoss = 0.0;
+
+  for (size_t i = 0; i < images.size(); ++i) {
+    std::vector<std::shared_ptr<Value>> input;
+    for (double pixel : images[i]) {
+      input.push_back(std::make_shared<Value>(pixel));
+    }
+
+    auto output = mlp.call(input);
+
+    // Compute softmax
+    std::vector<double> expVals(outputSize);
+    double sumExp = 0.0;
+    for (int j = 0; j < outputSize; ++j) {
+      expVals[j] = std::exp(output[j]->data());
+      sumExp += expVals[j];
+    }
+
+    // Predicted class = argmax
+    int prediction = std::distance(expVals.begin(),
+      std::max_element(expVals.begin(), expVals.end()));
+    if (prediction == labels[i]) {
+      correct++;
+    }
+
+    double logProb = std::log(expVals[labels[i]] / sumExp);
+    totalLoss += -logProb;
+  }
+
+  double avgLoss = totalLoss / images.size();
+  double accuracy = static_cast<double>(correct) / images.size();
+  return {avgLoss, accuracy};
+}
+
 int main() {
-  std::vector<std::vector<double>> images;
-  std::vector<int> labels;
+  std::vector<std::vector<double>> allImages;
+  std::vector<int> allLabels;
 
-  // Load training data
-  loadMNISTImages("../data/train-images-idx3-ubyte", images);
-  loadMNISTLabels("../data/train-labels-idx1-ubyte", labels);
-  std::cout << "Loaded " << images.size() << " training images\n";
+  loadMNISTImages("../data/train-images-idx3-ubyte", allImages);
+  loadMNISTLabels("../data/train-labels-idx1-ubyte", allLabels);
 
-  // Define neural network with inputs equal to the size of the training images,
-  // 2 hidden layers, and an output layer with 10 possible value [0 - 9]
-  MultiLayerPerceptron mlp(28 * 28, {128, 64, 10});
-  std::vector<std::shared_ptr<Value>> parameters = mlp.parameters();
+  std::cout << "Loaded " << allImages.size() << " images.\n";
 
-  // Define training parameters
-  const int epochs = 5;
-  const double learningRate = 0.01;
-  const int batchSize = 32;
+  // Split into train/test (e.g., 80% train, 20% test)
+  int totalSize = static_cast<int>(allImages.size());
+  int trainSize = static_cast<int>(0.8 * totalSize);
 
-  // Main training loop
+  std::vector<int> indices(totalSize);
+  std::iota(indices.begin(), indices.end(), 0);
   std::mt19937 rng(std::random_device{}());
+  std::shuffle(indices.begin(), indices.end(), rng);
+
+  std::vector<std::vector<double>> trainImages, testImages;
+  std::vector<int> trainLabels, testLabels;
+
+  for (int i = 0; i < trainSize; ++i) {
+    trainImages.push_back(allImages[indices[i]]);
+    trainLabels.push_back(allLabels[indices[i]]);
+  }
+
+  for (int i = trainSize; i < totalSize; ++i) {
+    testImages.push_back(allImages[indices[i]]);
+    testLabels.push_back(allLabels[indices[i]]);
+  }
+
+  MultiLayerPerceptron mlp(inputSize, {hiddenSize, outputSize});
+  auto parameters = mlp.parameters();
+
+  // Evaluate before training
+  auto [initialLoss, initialAcc] = evaluate(mlp, testImages, testLabels);
+  std::cout << "Before training: Loss = " << initialLoss
+            << ", Accuracy = " << initialAcc * 100.0 << "%\n";
+
   for (int epoch = 0; epoch < epochs; ++epoch) {
-    // Print training epoch
-    std::cout << "Epoch " << epoch + 1 << "\n";
+    std::cout << "\nEpoch " << epoch + 1 << "/" << epochs << "\n";
 
-    // Shuffle dataset
-    std::vector<int> indices(images.size());
-    std::iota(indices.begin(), indices.end(), 0);
-    std::shuffle(indices.begin(), indices.end(), rng);
+    // Shuffle training data each epoch
+    std::vector<int> trainIndices(trainImages.size());
+    std::iota(trainIndices.begin(), trainIndices.end(), 0);
+    std::shuffle(trainIndices.begin(), trainIndices.end(), rng);
 
-    // Loop over images
-    for (int i = 0; i < static_cast<int>(images.size()); i += batchSize) {
-      int end = std::min(i + batchSize, (int)images.size());
-
-      double loss = 0.0;
+    for (int i = 0; i < static_cast<int>(trainImages.size()); i += batchSize) {
+      int end = std::min(i + batchSize, (int)trainImages.size());
 
       // Reset gradients
       for (auto &p : parameters) {
         p->setGradient(0.0);
       }
 
-      for (int j = i; j < end; ++j) {
-        int idx = indices[j];
+      double batchLoss = 0.0;
 
-        // Create input Value vector
+      for (int j = i; j < end; ++j) {
+        int idx = trainIndices[j];
+
         std::vector<std::shared_ptr<Value>> input;
-        for (double pixel : images[idx]) {
+        for (double pixel : trainImages[idx]) {
           input.push_back(std::make_shared<Value>(pixel));
         }
 
         auto output = mlp.call(input);
 
-        // Softmax + NLL loss
         double sumExp = 0.0;
         for (const auto &o : output) {
           sumExp += std::exp(o->data());
         }
 
-        auto label = labels[idx];
-        auto correctLogProb = std::make_shared<Value>(
-            -std::log(std::exp(output[label]->data()) / sumExp));
-        loss += correctLogProb->data();
-
-        correctLogProb->backward();
+        auto label = trainLabels[idx];
+        auto loss = std::make_shared<Value>(-std::log(std::exp(output[label]->data()) / sumExp));
+        batchLoss += loss->data();
+        loss->backward();
       }
 
-      // SGD step
+      // Gradient descent
       for (auto &p : parameters) {
         double newVal = p->data() - learningRate * p->gradient();
         *p = Value(newVal);
       }
-      std::cout << "Batch " << i / batchSize << " loss = " << loss / (end - i)
-                << "\n";
+
+      std::cout << "Batch " << i / batchSize
+                << ", Avg Loss = " << batchLoss / (end - i) << "\n";
     }
+
+    // Evaluate after epoch
+    auto [valLoss, valAcc] = evaluate(mlp, testImages, testLabels);
+    std::cout << "After epoch " << epoch + 1 << ": "
+              << "Loss = " << valLoss
+              << ", Accuracy = " << valAcc * 100.0 << "%\n";
   }
 
   return 0;
