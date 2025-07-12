@@ -33,9 +33,8 @@ Neuron::call(const std::vector<std::shared_ptr<Value>> &x) const {
     dot = dot->operator+(mWeights[i]->operator*(x[i]));
   }
 
-  // Apply relu activation function
-  // TODO: Add to Value
-  return dot;
+  // Apply hyperbolic tangent activation function
+  return dot->tanh();
 }
 
 // Get Parameters function
