@@ -10,7 +10,7 @@ Layer::Layer(int numberInputs, int numberOutputs) {
 
 // Call operator overload
 std::vector<std::shared_ptr<Value>>
-Layer::call(const std::vector<std::shared_ptr<Value>> &x) {
+Layer::call(const std::vector<std::shared_ptr<Value>> &x) const {
   // Initialize output
   std::vector<std::shared_ptr<Value>> out;
 

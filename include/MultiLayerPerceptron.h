@@ -1,22 +1,22 @@
 #pragma once
 
-#include "Neuron.h"
+#include "Layer.h"
 
 /**
- * Layer
+ * Multi-Layer Perceptron
  *
- * @brief: A class which defines a a single layer of neurons in the neural
- * network.
+ * @brief: A class which defines a full multi-layer perceptron neural network.
  */
-class Layer {
+class MultiLayerPerceptron {
 public:
   /**
    * c'tor
    *
    * @param numberInputs The integer number of inputs the layer receives.
-   * @param numberOutputs The integer number of outputs the layer sends out.
+   * @param numberOutputs A vector of the integer number of outputs in each
+   * layer.
    */
-  Layer(int numberInputs, int numberOutputs);
+  MultiLayerPerceptron(int numberInputs, const std::vector<int> &numberOutputs);
 
   /**
    * Call Function
@@ -39,6 +39,6 @@ public:
   std::vector<std::shared_ptr<Value>> parameters() const;
 
 private:
-  // Vector of neurons in the layer
-  std::vector<Neuron> mNeurons;
+  // Vector of leyers in the neural network
+  std::vector<Layer> mLayers;
 };
