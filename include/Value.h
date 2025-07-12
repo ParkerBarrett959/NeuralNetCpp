@@ -25,7 +25,7 @@ public:
    * = empty set)
    */
   inline Value(double val = 0.0,
-               const std::vector<std::shared_ptr<const Value>> &prev = {})
+               const std::vector<std::shared_ptr<Value>> &prev = {})
       : mData(val), mGrad(0.0), mPrevious(prev) {}
 
   /**
@@ -78,7 +78,7 @@ public:
    *
    * @brief Return the set of previous nodes
    */
-  inline std::vector<std::shared_ptr<const Value>> previous() const {
+  inline std::vector<std::shared_ptr<Value>> previous() const {
     return mPrevious;
   }
 
@@ -122,5 +122,5 @@ private:
   std::function<void()> mBackward;
 
   // The set of contributing/previous nodes in the net
-  std::vector<std::shared_ptr<const Value>> mPrevious;
+  std::vector<std::shared_ptr<Value>> mPrevious;
 };

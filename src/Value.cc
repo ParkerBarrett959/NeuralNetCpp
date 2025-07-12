@@ -3,7 +3,7 @@
 // Addition Overload Operator
 std::shared_ptr<Value> Value::operator+(const std::shared_ptr<Value> &other) {
   // Create set of previous nodes
-  std::vector<std::shared_ptr<const Value>> prev = {other, shared_from_this()};
+  std::vector<std::shared_ptr<Value>> prev = {other, shared_from_this()};
 
   // Create the new value
   auto out = std::make_shared<Value>(mData + other->data(), prev);
@@ -19,7 +19,7 @@ std::shared_ptr<Value> Value::operator+(const std::shared_ptr<Value> &other) {
 // Multiplication Overload Operator
 std::shared_ptr<Value> Value::operator*(const std::shared_ptr<Value> &other) {
   // Create set of previous nodes
-  std::vector<std::shared_ptr<const Value>> prev = {other, shared_from_this()};
+  std::vector<std::shared_ptr<Value>> prev = {other, shared_from_this()};
 
   // Create the new value
   auto out = std::make_shared<Value>(mData * other->data(), prev);
@@ -34,13 +34,13 @@ std::shared_ptr<Value> Value::operator*(const std::shared_ptr<Value> &other) {
 
 // Backward pass function
 void Value::backward() {
-  // Use const Value everywhere for consistency
-  std::set<std::shared_ptr<const Value>> visited;
-  std::vector<std::shared_ptr<const Value>> topoSort;
+  // Initialize visited and topological sort
+  std::set<std::shared_ptr<Value>> visited;
+  std::vector<std::shared_ptr<Value>> topoSort;
 
   // Lambda for topological sort
-  std::function<void(std::shared_ptr<const Value>)> buildTopo =
-      [&](std::shared_ptr<const Value> v) {
+  std::function<void(std::shared_ptr<Value>)> buildTopo =
+      [&](std::shared_ptr<Value> v) {
         if (!visited.count(v)) {
           visited.insert(v);
           for (const auto &child : v->previous()) {
@@ -72,7 +72,7 @@ std::shared_ptr<Value> Value::tanh() {
   // tangent to the current value
   auto out = std::make_shared<Value>(
       std::tanh(mData),
-      std::vector<std::shared_ptr<const Value>>{shared_from_this()});
+      std::vector<std::shared_ptr<Value>>{shared_from_this()});
 
   // Set backward pass function
   out->setBackward([out, selfPtr = shared_from_this()]() {
