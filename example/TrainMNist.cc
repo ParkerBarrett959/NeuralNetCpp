@@ -6,7 +6,7 @@
 #include <cmath>
 
 #include "../include/MultiLayerPerceptron.h"
-#include "mnistLoader.h"
+#include "mNistLoader.h"
 
 int main() {
   std::vector<std::vector<double>> images;
