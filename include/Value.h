@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cmath>
 #include <functional>
 #include <memory>
 #include <set>
@@ -102,6 +103,13 @@ public:
    * contributing values.
    */
   std::shared_ptr<Value> operator*(const std::shared_ptr<Value> &other);
+
+  /**
+   * Hyperbolic tangent activation function
+   *
+   * @return Applying the hyperbolic tangent function to the current value
+   */
+  std::shared_ptr<Value> tanh();
 
 private:
   // Current data

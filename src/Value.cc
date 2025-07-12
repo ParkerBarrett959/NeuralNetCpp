@@ -65,3 +65,19 @@ void Value::backward() {
     }
   }
 }
+
+// Hyperbolic tangent activation function
+std::shared_ptr<Value> Value::tanh() {
+  // Create value with the mathematical result of applying the hyperbolic
+  // tangent to the current value
+  auto out = std::make_shared<Value>(
+      std::tanh(mData),
+      std::vector<std::shared_ptr<const Value>>{shared_from_this()});
+
+  // Set backward pass function
+  out->setBackward([out, selfPtr = shared_from_this()]() {
+    selfPtr->setGradient(selfPtr->gradient() +
+                         (1.0 - out->data() * out->data()) * out->gradient());
+  });
+  return out;
+}
