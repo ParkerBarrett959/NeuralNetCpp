@@ -12,7 +12,8 @@ inline int readInt(std::ifstream &ifs) {
   return (bytes[0] << 24) | (bytes[1] << 16) | (bytes[2] << 8) | bytes[3];
 }
 
-inline void loadMNISTImages(const std::string &path, std::vector<std::vector<double>> &images) {
+inline void loadMNISTImages(const std::string &path,
+                            std::vector<std::vector<double>> &images) {
   std::ifstream ifs(path, std::ios::binary);
   if (!ifs.is_open()) {
     throw std::runtime_error("Cannot open image file: " + path);
@@ -28,7 +29,7 @@ inline void loadMNISTImages(const std::string &path, std::vector<std::vector<dou
     for (int j = 0; j < numRows * numCols; ++j) {
       unsigned char pixel;
       ifs.read(reinterpret_cast<char *>(&pixel), 1);
-      images[i][j] = pixel / 255.0;  // Normalize
+      images[i][j] = pixel / 255.0; // Normalize
     }
   }
 }
