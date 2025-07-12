@@ -1,23 +1,21 @@
 #include "Value.h"
 
 // Addition Overload Operator
-Value Value::operator+(const Value &other) const {
+std::shared_ptr<Value> Value::operator+(const std::shared_ptr<Value> &other) {
   // Create set of previous nodes
-  std::set<std::shared_ptr<const Value>> prev = {
-      std::make_shared<const Value>(other), shared_from_this()};
+  std::set<std::shared_ptr<const Value>> prev = {other, shared_from_this()};
 
   // Create the new value
-  Value out(this->data() + other.data(), prev);
+  auto out = std::make_shared<Value>(mData + other->data(), prev);
   return out;
 }
 
 // Multiplication Overload Operator
-Value Value::operator*(const Value &other) const {
+std::shared_ptr<Value> Value::operator*(const std::shared_ptr<Value> &other) {
   // Create set of previous nodes
-  std::set<std::shared_ptr<const Value>> prev = {
-      std::make_shared<const Value>(other), shared_from_this()};
+  std::set<std::shared_ptr<const Value>> prev = {other, shared_from_this()};
 
   // Create the new value
-  Value out(this->data() * other.data(), prev);
+  auto out = std::make_shared<Value>(mData * other->data(), prev);
   return out;
 }

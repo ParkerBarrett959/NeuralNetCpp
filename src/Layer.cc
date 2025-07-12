@@ -9,13 +9,24 @@ Layer::Layer(int numberInputs, int numberOutputs) {
 }
 
 // Call operator overload
-std::vector<Value> Layer::call(const std::vector<Value> &x) const {
+std::vector<std::shared_ptr<Value>>
+Layer::call(const std::vector<std::shared_ptr<Value>> &x) {
   // Initialize output
-  std::vector<Value> out;
+  std::vector<std::shared_ptr<Value>> out;
 
   // Loop over neurons in layer and call operator
   for (const auto &neuron : mNeurons) {
     out.push_back(neuron.call(x));
+  }
+  return out;
+}
+
+// Get parameters of all neurons in layer
+std::vector<std::shared_ptr<Value>> Layer::parameters() const {
+  std::vector<std::shared_ptr<Value>> out;
+  for (const auto &neuron : mNeurons) {
+    auto p = neuron.parameters();
+    out.insert(out.end(), p.begin(), p.end());
   }
   return out;
 }

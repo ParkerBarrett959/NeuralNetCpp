@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <memory>
 #include <set>
 
@@ -53,7 +54,7 @@ public:
    * @return Value with the data being the sum of the data from the two
    * contributing values.
    */
-  Value operator+(const Value &other) const;
+  std::shared_ptr<Value> operator+(const std::shared_ptr<Value> &other);
 
   /**
    * Multiplication Overload Operator
@@ -64,7 +65,7 @@ public:
    * @return Value with the data being the product of the data from the two
    * contributing values.
    */
-  Value operator*(const Value &other) const;
+  std::shared_ptr<Value> operator*(const std::shared_ptr<Value> &other);
 
 private:
   // Current data
@@ -72,6 +73,9 @@ private:
 
   // Current gradient
   double mGrad;
+
+  // Backward pass function
+  std::function<void()> mBackward;
 
   // The set of contributing/previous nodes in the net
   std::set<std::shared_ptr<const Value>> mPrevious;

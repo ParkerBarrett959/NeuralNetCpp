@@ -10,7 +10,6 @@ int main() {
   // Split dataset into training and evaluation portions
 
   // Initialize a neural network for training
-  // TODO...
 
   // Main Training Loop
   static constexpr int NUM_TRAINING_STEPS = 1000;

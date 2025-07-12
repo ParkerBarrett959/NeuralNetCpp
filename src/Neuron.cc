@@ -4,21 +4,23 @@
 Neuron::Neuron(int numberInputs) {
   // Create a uniform distribution on range [-1, 1] to initialize the neuron
   // weights.
-  std::mt19937 generator;
-  std::uniform_real_distribution<double> distribution(-1.0, 1.0);
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_real_distribution<> distribution(-1.0, 1.0);
 
   // Initialize a random set of neuron weights
   mWeights.resize(numberInputs);
   for (size_t i = 0; i < mWeights.size(); ++i) {
-    mWeights[i] = Value(distribution(generator));
+    mWeights[i] = std::make_shared<Value>(Value(distribution(gen)));
   }
 
   // Initialize the bias to 0
-  mBias = Value(0.0);
+  mBias = std::make_shared<Value>(0.0);
 }
 
 // Call function
-Value Neuron::call(const std::vector<Value> &x) const {
+std::shared_ptr<Value>
+Neuron::call(const std::vector<std::shared_ptr<Value>> &x) const {
   // Verify the input vector is the correct length
   if (x.size() != mWeights.size()) {
     throw std::invalid_argument(
@@ -26,14 +28,19 @@ Value Neuron::call(const std::vector<Value> &x) const {
   }
 
   // Compute dot product of inputs and weights/biases
-  Value dot;
+  auto dot = mBias;
   for (size_t i = 0; i < x.size(); ++i) {
-    Value xiwi = x[i] * mWeights[i];
-    dot = dot + xiwi;
+    dot = dot->operator+(mWeights[i]->operator*(x[i]));
   }
-  dot = dot + mBias;
 
   // Apply relu activation function
   // TODO: Add to Value
   return dot;
+}
+
+// Get Parameters function
+std::vector<std::shared_ptr<Value>> Neuron::parameters() const {
+  std::vector<std::shared_ptr<Value>> out = mWeights;
+  out.push_back(mBias);
+  return out;
 }

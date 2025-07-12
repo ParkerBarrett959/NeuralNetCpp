@@ -28,7 +28,15 @@ public:
    *
    * @return A vector of value results of the call operator on each neuron
    */
-  std::vector<Value> call(const std::vector<Value> &x) const;
+  std::vector<std::shared_ptr<Value>>
+  call(const std::vector<std::shared_ptr<Value>> &x);
+
+  /**
+   * Parameters
+   *
+   * @brief Get parameters of all neurons in layer
+   */
+  std::vector<std::shared_ptr<Value>> parameters() const;
 
 private:
   // Vector of neurons in the layer

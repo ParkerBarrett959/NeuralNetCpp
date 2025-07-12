@@ -34,12 +34,20 @@ public:
    *
    * @return A value result of the call operator on the neuron
    */
-  Value call(const std::vector<Value> &x) const;
+  std::shared_ptr<Value>
+  call(const std::vector<std::shared_ptr<Value>> &x) const;
+
+  /**
+   * Parameters
+   *
+   * @brief Return a vector of the weights and bias in the neural net
+   */
+  std::vector<std::shared_ptr<Value>> parameters() const;
 
 private:
   // Vector of neuron weights
-  std::vector<Value> mWeights;
+  std::vector<std::shared_ptr<Value>> mWeights;
 
   // Neuron bias
-  Value mBias;
+  std::shared_ptr<Value> mBias;
 };
