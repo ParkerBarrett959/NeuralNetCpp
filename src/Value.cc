@@ -9,6 +9,10 @@ std::shared_ptr<Value> Value::operator+(const std::shared_ptr<Value> &other) {
   auto out = std::make_shared<Value>(mData + other->data(), prev);
 
   // Add backwards propagation function
+  out->setBackward([out, selfPtr = shared_from_this(), other]() {
+    selfPtr->setGradient(selfPtr->gradient() + out->gradient());
+    other->setGradient(other->gradient() + out->gradient());
+  });
   return out;
 }
 
@@ -19,6 +23,12 @@ std::shared_ptr<Value> Value::operator*(const std::shared_ptr<Value> &other) {
 
   // Create the new value
   auto out = std::make_shared<Value>(mData * other->data(), prev);
+
+  // Add backwards propagation function
+  out->setBackward([out, selfPtr = shared_from_this(), other]() {
+    selfPtr->setGradient(selfPtr->gradient() + other->data() * out->gradient());
+    other->setGradient(other->gradient() + selfPtr->data() * out->gradient());
+  });
   return out;
 }
 

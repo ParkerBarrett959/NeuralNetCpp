@@ -37,6 +37,15 @@ public:
   inline double data() const { return mData; }
 
   /**
+   * Set Gradient
+   *
+   * @brief Set the underlying gradient value.
+   *
+   * @param grad The new value of the gradient
+   */
+  inline void setGradient(double grad) { mGrad = grad; }
+
+  /**
    * Gradient
    *
    * @brief Return the underlying gradient associated with the current value.
