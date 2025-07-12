@@ -20,11 +20,11 @@ public:
    * @brief Set the scalar value and initializes the gradient to 0.
    *
    * @param val The scalar value (default = 0.0)
-   * @param prev A set of pointers to the previous (upstream) values (default =
-   * empty set)
+   * @param prev A vector of pointers to the previous (upstream) values (default
+   * = empty set)
    */
   inline Value(double val = 0.0,
-               const std::set<std::shared_ptr<const Value>> &prev = {})
+               const std::vector<std::shared_ptr<const Value>> &prev = {})
       : mData(val), mGrad(0.0), mPrevious(prev) {}
 
   /**
@@ -44,6 +44,33 @@ public:
    * @return The gradient stored in the value.
    */
   inline double gradient() const { return mGrad; }
+
+  /**
+   * Set backward
+   *
+   * @brief Set the backward pass function
+   *
+   * @param func The backwards pass function
+   */
+  inline void setBackward(const std::function<void()> &func) {
+    mBackward = func;
+  }
+
+  /**
+   * Backward
+   *
+   * @brief Run the backward pass function
+   */
+  void backward();
+
+  /**
+   * Previous
+   *
+   * @brief Return the set of previous nodes
+   */
+  inline std::vector<std::shared_ptr<const Value>> previous() const {
+    return mPrevious;
+  }
 
   /**
    * Addition Overload Operator
@@ -78,5 +105,5 @@ private:
   std::function<void()> mBackward;
 
   // The set of contributing/previous nodes in the net
-  std::set<std::shared_ptr<const Value>> mPrevious;
+  std::vector<std::shared_ptr<const Value>> mPrevious;
 };
