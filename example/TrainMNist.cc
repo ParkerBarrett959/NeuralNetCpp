@@ -6,14 +6,14 @@
 #include <cmath>
 
 #include "../include/MultiLayerPerceptron.h"
-#include "mnist_loader.h"
+#include "mNistLoader.h"
 
 constexpr int inputSize = 28 * 28;
 constexpr int hiddenSize = 64;
 constexpr int outputSize = 10;
 constexpr double learningRate = 0.01;
 constexpr int epochs = 5;
-constexpr int batchSize = 32;
+constexpr int batchSize = 8;
 
 std::pair<double, double> evaluate(
     const MultiLayerPerceptron& mlp,
@@ -63,6 +63,11 @@ int main() {
   loadMNISTLabels("../data/train-labels-idx1-ubyte", allLabels);
 
   std::cout << "Loaded " << allImages.size() << " images.\n";
+
+  int maxSamples = 1000;
+  allImages.resize(maxSamples);
+  allLabels.resize(maxSamples);
+  std::cout << "Resized data set to maximum " << maxSamples << " images.\n";
 
   // Split into train/test (e.g., 80% train, 20% test)
   int totalSize = static_cast<int>(allImages.size());
